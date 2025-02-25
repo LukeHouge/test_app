@@ -34,12 +34,30 @@ jobs:
     name: Release
     runs-on: ubuntu-22.04
     steps:
+      - name: Get last tag and create a new version
+        id: new_tag
+        run: |
+          # Get the latest tag from the repository
+          last_tag=$(git describe --tags --abbrev=0)
+          
+          # If there are no tags, start at v0.1.0
+          if [[ -z "$last_tag" ]]; then
+            new_version="v0.1.0"
+          else
+            # Increment the version (assuming semantic versioning)
+            new_version=$(echo "$last_tag" | awk -F. -v OFS=. '{$NF++; print}')
+          fi
+          
+          # Save the new version as an environment variable
+          echo "NEW_VERSION=${new_version}" >> $GITHUB_ENV
+  
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
+          tag: ${{ env.NEW_VERSION }}  # New version tag
         run: |
+          # Create a new release with the incremented version as the tag
           gh release create "$tag" \
               --repo="$GITHUB_REPOSITORY" \
-              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+              --title="Release $tag" \
               --generate-notes
