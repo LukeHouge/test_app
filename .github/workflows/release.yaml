@@ -1,0 +1,43 @@
+name: CI/CD for FastAPI
+
+on:
+  push:
+    branches:
+      - main
+  tags:
+    - 'v*'  # Trigger the workflow on tag creation (e.g., v1.0.0)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    # Checkout code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Log in to GitHub Container Registry
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Build and push the Docker image to GHCR
+    - name: Build and push Docker image to GHCR
+      run: |
+        docker build -t ghcr.io/${{ github.repository_owner }}/fastapi-app:${GITHUB_SHA} .
+        docker push ghcr.io/${{ github.repository_owner }}/fastapi-app:${GITHUB_SHA}
+    
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./Dockerfile
+            ./docker-compose.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
