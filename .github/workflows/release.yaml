@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-  tags:
-    - 'v*'  # Trigger the workflow on tag creation (e.g., v1.0.0)
+    tags:
+      - 'v*'  # Trigger the workflow on tag creation (e.g., v1.0.0)
 
 jobs:
   build:
