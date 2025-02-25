@@ -34,6 +34,9 @@ jobs:
     name: Release
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
       - name: Get last tag and create a new version
         id: new_tag
         run: |
