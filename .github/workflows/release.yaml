@@ -31,14 +31,15 @@ jobs:
         docker push ghcr.io/lukehouge/fastapi-app:${GITHUB_SHA}
     
   release:
-    needs: build
-    runs-on: ubuntu-latest
+    name: Release
+    runs-on: ubuntu-22.04
     steps:
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            ./Dockerfile
-            ./docker-compose.yml
+      - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+              --generate-notes
