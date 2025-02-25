@@ -43,8 +43,11 @@ jobs:
           # Ensure we are in a git repository
           git fetch --tags  # Fetch all tags to ensure they're available locally
   
-          # Try to get the latest tag from the repository
+          # Try to get the latest tag from the repository, default to v0.1.0 if none exists
           last_tag=$(git describe --tags --abbrev=0 || echo "v0.1.0")
+  
+          # Start with the new version
+          new_version="$last_tag"
   
           # If there are no tags, start at v0.1.0
           if [[ "$last_tag" == "v0.1.0" ]]; then
@@ -53,7 +56,16 @@ jobs:
             # Increment the version (assuming semantic versioning)
             new_version=$(echo "$last_tag" | awk -F. -v OFS=. '{$NF++; print}')
           fi
+  
+          # Ensure the new tag doesn't already exist
+          tag_exists=$(git tag -l "$new_version")
           
+          # Loop to find an unused tag by incrementing the version until it is unique
+          while [[ -n "$tag_exists" ]]; do
+            new_version=$(echo "$new_version" | awk -F. -v OFS=. '{$NF++; print}')
+            tag_exists=$(git tag -l "$new_version")
+          done
+  
           # Save the new version as an environment variable
           echo "NEW_VERSION=${new_version}" >> $GITHUB_ENV
   
