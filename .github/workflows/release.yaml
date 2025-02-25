@@ -27,8 +27,8 @@ jobs:
     # Build and push the Docker image to GHCR
     - name: Build and push Docker image to GHCR
       run: |
-        docker build -t ghcr.io/LukeHouge/fastapi-app:${GITHUB_SHA} .
-        docker push ghcr.io/LukeHouge/fastapi-app:${GITHUB_SHA}
+        docker build -t ghcr.io/lukehouge/fastapi-app:${GITHUB_SHA} .
+        docker push ghcr.io/lukehouge/fastapi-app:${GITHUB_SHA}
     
   release:
     needs: build
