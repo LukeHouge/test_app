@@ -40,11 +40,14 @@ jobs:
       - name: Get last tag and create a new version
         id: new_tag
         run: |
-          # Get the latest tag from the repository
-          last_tag=$(git describe --tags --abbrev=0)
-          
+          # Ensure we are in a git repository
+          git fetch --tags  # Fetch all tags to ensure they're available locally
+  
+          # Try to get the latest tag from the repository
+          last_tag=$(git describe --tags --abbrev=0 || echo "v0.1.0")
+  
           # If there are no tags, start at v0.1.0
-          if [[ -z "$last_tag" ]]; then
+          if [[ "$last_tag" == "v0.1.0" ]]; then
             new_version="v0.1.0"
           else
             # Increment the version (assuming semantic versioning)
