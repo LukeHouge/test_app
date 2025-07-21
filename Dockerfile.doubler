@@ -1,0 +1,22 @@
+# Dockerfile for Doubler microservice
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy doubler service
+COPY doubler_service.py /app/
+
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash doubler
+USER doubler
+
+# Expose the port
+EXPOSE 8001
+
+# Run the doubler service
+CMD ["uvicorn", "doubler_service:app", "--host", "0.0.0.0", "--port", "8001"]
